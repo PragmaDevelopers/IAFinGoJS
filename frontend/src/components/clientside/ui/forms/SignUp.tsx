@@ -165,7 +165,8 @@ function SignUpForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-96 p-4 rounded-md border border-neutral-400 h-[31rem] flex flex-col justify-between">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-96 p-4 rounded-md border border-neutral-400 h-[32rem] flex flex-col justify-between">
+                <h1 className="text-center text-xl font-bold">Sign Up</h1>
                 <div>
                     {section === 0 && (
                         <>
@@ -278,7 +279,7 @@ function SignUpForm() {
                 </div>
 
                 <div>
-                    <div className="w-full mb-2 flex justify-between mt-4">
+                    <div className="w-full mb-2 flex justify-between mt-4 h-12">
                         <Button type="button" variant={(section == 0) ? "outline" : "default"} size="icon" onClick={returnSection} disabled={section == 0}>
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
