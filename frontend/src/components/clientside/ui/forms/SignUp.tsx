@@ -165,7 +165,7 @@ function SignUpForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-96 p-4 rounded-md border border-neutral-400 h-[32rem] flex flex-col justify-between">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full py-8 px-12 border-l border-neutral-400 h-full flex flex-col justify-between">
                 <h1 className="text-center text-xl font-bold">Sign Up</h1>
                 <div>
                     {section === 0 && (
@@ -293,7 +293,7 @@ function SignUpForm() {
                     <div className="mx my-4 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-neutral-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-neutral-400">
                         or
                     </div>
-                    <p className="my-2 text-sm rounded-md px-3 text-neutral-600">If you already have an account please <Link href="/login" className="text-neutral-900 underline-offset-4 hover:underline dark:text-neutral-50 transition-all">Log In</Link></p>
+                    <p className="text-center my-2 text-sm rounded-md px-3 text-neutral-600">If you already have an account please <Link href="/login" className="text-neutral-900 underline-offset-4 hover:underline dark:text-neutral-50 transition-all">Log In</Link></p>
                 </div>
             </form>
         </Form>
@@ -303,9 +303,9 @@ function SignUpForm() {
 export default function SignUpFormPage() {
     return (
         <GoogleCaptchaWrapper>
-            <div>
+            <div className="w-5/12 h-full">
                 <SignUpForm />
-                <div className="absolute bottom-4 right-4" id="recaptchaContainer" />
+                <div className="absolute bottom-4 left-4" id="recaptchaContainer" />
             </div>
         </GoogleCaptchaWrapper>
     );
