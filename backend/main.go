@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"api"
+)
 
 func main() {
-	fmt.Println("Hello World!")
+	fmt.Println("Running Server!")
+	api.Server()
 }
