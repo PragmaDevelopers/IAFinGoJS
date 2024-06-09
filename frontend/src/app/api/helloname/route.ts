@@ -2,6 +2,7 @@ import { ChannelCredentials, Client } from "@grpc/grpc-js";
 import { HelloService } from "@/lib/grpc";
 import { promisify } from "util";
 import { HelloServiceClient } from "@/proto/generated/helloname/HelloService";
+import { decrypt } from "@/app/utils/crypto/ServerCrypto";
 
 const getGrpcClient = () => {
     if (process.env.GRPC_SERVER_HOST_NAME === undefined) {
@@ -25,7 +26,9 @@ export async function GET(request: Request) {
         const client = getGrpcClient();
 
         const { searchParams } = new URL(request.url);
-        const username = searchParams.get("username") || "world";
+        const usernameData = searchParams.get("username") || "world";
+        console.log(usernameData);
+        const username = await decrypt(usernameData);
 
         const response = await sayHelloAsync(client, { username });
 
