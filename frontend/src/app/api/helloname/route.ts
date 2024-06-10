@@ -1,5 +1,5 @@
 import { ChannelCredentials, Client } from "@grpc/grpc-js";
-import { HelloService } from "@/lib/grpc";
+import { HelloService } from "@/lib/gRPC/helloname";
 import { promisify } from "util";
 import { HelloServiceClient } from "@/proto/generated/helloname/HelloService";
 import { decrypt } from "@/app/utils/crypto/ServerCrypto";
