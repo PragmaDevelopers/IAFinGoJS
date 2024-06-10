@@ -68,7 +68,7 @@ export default function TestForm(): ReactElement<any, any> {
 
     const fetchGreeting = async () => {
         setError(null); // Clear previous error
-        const encrypted = await encrypt(input, key); // Assuming key is defined elsewhere
+        const encrypted = await encrypt(username, key); // Assuming key is defined elsewhere
         try {
             const response = await fetch(`/api/helloname?username=${encrypted}`);
             if (!response.ok) {
