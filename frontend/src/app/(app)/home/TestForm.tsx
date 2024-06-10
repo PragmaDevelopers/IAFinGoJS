@@ -1,7 +1,7 @@
 "use client";
 
 import { encrypt, decrypt } from "@/app/utils/crypto/ClientCrypto";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useState } from "react";
 
 interface HelloResponse {
     message: string;
@@ -14,39 +14,10 @@ export default function TestForm(): ReactElement<any, any> {
     const [input, setInput] = useState('');
     const [encryptedData, setEncryptedData] = useState('');
     const [decryptedData, setDecryptedData] = useState('');
-    const [key, setKey] = useState<any>();
-
-    useEffect(() => {
-        // Check if window is available before using it
-        if (typeof window !== 'undefined') {
-            const generateKey = async () => {
-                try {
-                    const key = await window.crypto.subtle.generateKey(
-                        { name: 'AES-GCM', length: 256 },
-                        true,
-                        ['encrypt', 'decrypt']
-                    );
-                    return key;
-                } catch (error) {
-                    console.error('Key generation error:', error);
-                    throw error;
-                }
-            };
-
-            generateKey()
-                .then((key) => {
-                    // Use the generated key
-                    setKey(key);
-                })
-                .catch((error) => {
-                    console.error('Key generation error:', error);
-                });
-        }
-    }, []); // Run once on component mount
 
     const handleEncrypt = async () => {
         try {
-            const encrypted = await encrypt(input, key); // Assuming key is defined elsewhere
+            const encrypted = await encrypt(input); // Assuming key is defined elsewhere
             setEncryptedData(encrypted);
         } catch (error) {
             console.error('Encryption error:', error);
@@ -65,7 +36,7 @@ export default function TestForm(): ReactElement<any, any> {
 
     const fetchGreeting = async () => {
         setError(null); // Clear previous error
-        const encrypted = await encrypt(username, key); // Assuming key is defined elsewhere
+        const encrypted = await encrypt(username); // Assuming key is defined elsewhere
         try {
             const response = await fetch(`/api/helloname?username=${encrypted}`);
             if (!response.ok) {

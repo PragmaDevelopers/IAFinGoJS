@@ -44,7 +44,7 @@ type JSONData struct {
 }
 
 // EncryptData encrypts data using AES-GCM with the provided key
-func EncryptData(data string, key *jose.JSONWebKey) (string, error) {
+func encryptData(data string, key *jose.JSONWebKey) (string, error) {
 	block, err := aes.NewCipher(key.Key.([]byte))
 	if err != nil {
 		return "", err
@@ -76,6 +76,20 @@ func EncryptData(data string, key *jose.JSONWebKey) (string, error) {
 	finalb64String := base64.StdEncoding.EncodeToString(finalDataBytes)
 	reversedData := reverseString(finalb64String)
 	return reversedData, nil
+}
+
+func EncryptData(data string) (string, error) {
+	key, e := GenerateJWKKey(32)
+	if (e != nil) {
+		return "", e
+	}
+
+	result, e := encryptData(data, key)
+	if (e != nil) {
+		return "", e
+	}
+
+	return result, nil
 }
 
 // DecryptData decrypts the provided data using the embedded key and IV
@@ -118,7 +132,7 @@ func DecryptData(data string) (string, error) {
 	return string(decryptedData), nil
 }
 
-func GenerateKey(keySize int) ([]byte, error) {
+func generateKey(keySize int) ([]byte, error) {
 	key := make([]byte, keySize)
 	_, err := io.ReadFull(rand.Reader, key)
 	if err != nil {
@@ -128,7 +142,7 @@ func GenerateKey(keySize int) ([]byte, error) {
 }
 
 func GenerateJWKKey(keySize int) (*jose.JSONWebKey, error) {
-	k, e := GenerateKey(keySize)
+	k, e := generateKey(keySize)
 	jwk := &jose.JSONWebKey{
 		Key:       k,
 		KeyID:     "aes-key",

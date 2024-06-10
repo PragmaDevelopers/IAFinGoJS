@@ -27,7 +27,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return Buffer.from(bytes).toString('base64');
 }
 
-export async function encrypt(data: string, key: webcrypto.CryptoKey): Promise<string> {
+async function _encrypt(data: string, key: webcrypto.CryptoKey): Promise<string> {
     try {
         const { encryptedData, iv } = await encryptData(data, key);
         const b64Data = arrayBufferToBase64(encryptedData);
@@ -45,6 +45,16 @@ export async function encrypt(data: string, key: webcrypto.CryptoKey): Promise<s
         console.error('Encryption error:', error);
         throw error;
     }
+}
+
+export async function encrypt(data: string): Promise<string> {
+    const key = await window.crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['encrypt', 'decrypt']
+    );
+    const result: string = await _encrypt(data, key);
+    return result;
 }
 
 export async function decrypt(data: string): Promise<string> {
