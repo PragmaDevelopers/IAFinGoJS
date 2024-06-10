@@ -47,3 +47,27 @@ ou
 `bun install`
 
 `bun run dev`
+
+### PROTOCOL BUFFERS 3 e gRPC
+
+para uma introdução a ProtoBuffers3 e gRPC Leia o [INTROPROTOGRPC.md](./INTROPROTOGRPC.md)
+
+#### Backend
+
+para o backend em Go você primeiro tem que instalar as dependencias:
+
+`go install google.golang.org/protobuf/cmd/protoc-gen-go@latest`
+
+`go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest`
+
+para compilar os arquivos .proto basta navegar para a pasta `backend/` e rodar:
+
+`protoc --go_out=. --go-grpc_out=. ./proto_files/*.proto`
+
+no seu terminal.
+
+#### Frontend
+
+para o frontend basta você executar o script npm. (assumindo que você já executou o `npm install`)
+
+`npm run proto-gen-types`.
