@@ -38,7 +38,13 @@ export default function TestForm(): ReactElement<any, any> {
         setError(null); // Clear previous error
         const encrypted = await encrypt(username); // Assuming key is defined elsewhere
         try {
-            const response = await fetch(`/api/helloname?username=${encrypted}`);
+            const response = await fetch(`/api/helloname`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: encrypted })
+            });
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }

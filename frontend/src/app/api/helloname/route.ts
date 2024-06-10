@@ -21,18 +21,17 @@ const sayHelloAsync = promisify(
     }
 );
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
     try {
         const client = getGrpcClient();
 
-        const { searchParams } = new URL(request.url);
-        const usernameData = searchParams.get("username") || "world";
-        const username = usernameData;
+        const body = await request.json();
+        const username = body.username || "world";
         const response = await sayHelloAsync(client, { username });
         const decryptedResponse = await decrypt(response.message);
         const newResponse = {
             message: decryptedResponse
-        }
+        };
 
         return new Response(JSON.stringify(newResponse), {
             status: 200,
