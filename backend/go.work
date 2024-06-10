@@ -2,7 +2,8 @@ go 1.22.2
 
 use (
 	.
-	./api/proto
 	./api
+	./api/proto
 	./utils
+	./utils/crypto
 )

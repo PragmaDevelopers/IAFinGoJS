@@ -36,7 +36,6 @@ export default function TestForm(): ReactElement<any, any> {
             generateKey()
                 .then((key) => {
                     // Use the generated key
-                    console.log("Key generated:", key);
                     setKey(key);
                 })
                 .catch((error) => {
@@ -47,7 +46,6 @@ export default function TestForm(): ReactElement<any, any> {
 
     const handleEncrypt = async () => {
         try {
-            console.log("encrypting")
             const encrypted = await encrypt(input, key); // Assuming key is defined elsewhere
             setEncryptedData(encrypted);
         } catch (error) {
@@ -57,7 +55,6 @@ export default function TestForm(): ReactElement<any, any> {
 
     const handleDecrypt = async () => {
         try {
-            console.log("decrypting")
             const decrypted = await decrypt(encryptedData); // Assuming encryptedData is defined elsewhere
             setDecryptedData(decrypted);
         } catch (error) {
@@ -78,7 +75,7 @@ export default function TestForm(): ReactElement<any, any> {
             setGreeting(data.message);
         } catch (error: any) {
             setError(error.message);
-            console.error("Fetch error: ", error);
+            console.error("Fetch error: ", error.message);
         }
     };
 

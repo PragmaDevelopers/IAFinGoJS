@@ -27,12 +27,14 @@ export async function GET(request: Request) {
 
         const { searchParams } = new URL(request.url);
         const usernameData = searchParams.get("username") || "world";
-        console.log(usernameData);
-        const username = await decrypt(usernameData);
-
+        const username = usernameData;
         const response = await sayHelloAsync(client, { username });
+        const decryptedResponse = await decrypt(response.message);
+        const newResponse = {
+            message: decryptedResponse
+        }
 
-        return new Response(JSON.stringify(response), {
+        return new Response(JSON.stringify(newResponse), {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'

@@ -9,6 +9,8 @@ import (
 
     "google.golang.org/grpc"
     pb "api/proto"
+
+    "utils/crypto"
 )
 
 type server struct {
@@ -17,8 +19,23 @@ type server struct {
 
 func (s *server) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloResponse, error) {
     currentTime := time.Now().Unix()
-    message := fmt.Sprintf("Hello, %s! Time: %d", req.Username, currentTime)
-    return &pb.HelloResponse{Message: message}, nil
+    decData, _ := crypto.DecryptData(req.Username)
+    fmt.Printf("Username: %s\n", req.Username)
+    fmt.Printf("Decrypted Username: %s\n", decData)
+    message := fmt.Sprintf("Hello, %s! Time: %d", decData, currentTime)
+    fmt.Printf("MESSAGE: %s\n", message)
+    k, e := crypto.GenerateJWKKey(32)
+    if (e != nil) {
+        panic(e)
+    }
+    cryptMessage, e := crypto.EncryptData(message, k)
+    if (e != nil) {
+        panic(e)
+    }
+
+    fmt.Printf("ENCRYPTED MESSAGE: %s\n", cryptMessage)
+
+    return &pb.HelloResponse{Message: cryptMessage}, nil
 }
 
 func Server() {

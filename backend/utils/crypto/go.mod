@@ -1,4 +1,4 @@
-module api
+module utils/crypto
 
 go 1.22.2
 
