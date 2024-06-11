@@ -1,14 +1,13 @@
 "use client";
 
-import { ArrowBigRightDash, Coins, File, Home, LayoutDashboard, LucideTrendingDown, LucideTrendingUp, X } from 'lucide-react';
+import { ArrowBigRightDash, Banknote, File, Home, LayoutDashboard, LucideTrendingDown, LucideTrendingUp, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { cn } from "@/lib/utils"
 
 const Sidebar: React.FC = () => {
     const [showSidebar, setShowSidebar] = useState(true);
-
     return (
-        <div className="h-full fixed">
+        <div className="h-full fixed z-50">
             <div
                 className={cn(
                     "h-full w-64 bg-gray-800 text-white fixed top-0 transition-transform duration-300",
@@ -47,7 +46,7 @@ const Sidebar: React.FC = () => {
                             <a href="/extrato" className="block p-2 hover:bg-gray-700 rounded">Extrato</a>
                         </li>
                         <li className="mb-2 flex items-center">
-                            <Coins className="mr-2" />
+                            <Banknote className="mr-2" />
                             <a href="#" className="block p-2 hover:bg-gray-700 rounded">IA Finanças</a>
                         </li>
                     </ul>
@@ -57,7 +56,7 @@ const Sidebar: React.FC = () => {
                 <button
                     onClick={() => setShowSidebar(true)}
                     type="button"
-                    className="h-12 w-12 p-3 bg-gray-800 text-white fixed top-4 -left-2 hover:translate-x-2 transition-transform duration-300"
+                    className="h-12 w-12 p-3 bg-gray-800 opacity-50 text-white fixed top-4 -left-2 hover:opacity-100 hover:translate-x-2 transition-transform duration-300"
                 >
                     <ArrowBigRightDash />
                 </button>
