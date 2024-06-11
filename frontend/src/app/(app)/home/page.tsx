@@ -1,10 +1,9 @@
 import { ReactElement } from "react";
-import TestForm from "./TestForm";
 
 export default function Page(): ReactElement<any, any> {
     return (
         <main>
-            <TestForm />
+            <h1>Home page</h1>
         </main>
     );
 }

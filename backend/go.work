@@ -2,8 +2,11 @@ go 1.22.2
 
 use (
 	.
+	../cli
 	./api
 	./api/proto
 	./utils
+	./utils/auth
 	./utils/crypto
+	./utils/database
 )

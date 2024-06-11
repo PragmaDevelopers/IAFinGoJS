@@ -20,10 +20,17 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import GoogleCaptchaWrapper from "@/app/utils/auth/ReCaptcha/ReCaptchaWarpper";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { LogInAuthToken } from "@/proto/generated/login/LogInAuthToken";
+import { encrypt } from "@/app/utils/crypto/ClientCrypto";
+import { useRouter } from 'next/navigation';
+import { useAuthContext } from "@/app/utils/contexts/auth/AuthContext";
+
 
 const specialCharacters = '!@#$%&*()_\\-+=.';
 
 function LogInForm() {
+    const { setToken } = useAuthContext();
+    const router = useRouter();
 
     const formSchema = useMemo(() => z.object({
         email: z.string().email('Please provide a valid email address.').optional(),
@@ -54,9 +61,7 @@ function LogInForm() {
 
     const { executeRecaptcha } = useGoogleReCaptcha();
 
-    // const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const onSubmit = async (values: any) => {
-        console.log("SUBMITTING FORM!!!!", values);
         const result = formSchema.safeParse(values);
 
         if (!result.success) {
@@ -68,7 +73,34 @@ function LogInForm() {
         // Proceed with form submission
         if (executeRecaptcha !== undefined) {
             const token = await executeRecaptcha("registerSubmit");
-            console.log(token);
+
+            try {
+                const e = result?.data?.email;
+                const p = result?.data?.password;
+                if (e !== undefined && p !== undefined) {
+                    const email = await encrypt(e);
+                    const password = await encrypt(p);
+    
+                    const response = await fetch(`/api/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email, password: password, reCaptchaToken: token })
+                    });
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    const authToken: LogInAuthToken = await response.json();
+                    if (authToken?.token !== "" && authToken.token !== undefined) {
+                        setToken(authToken.token);
+                        router.push("/home");
+                    }
+                }
+            } catch (error: any) {
+                console.error("Fetch error: ", error.message);
+            }
+
         }
     };
 

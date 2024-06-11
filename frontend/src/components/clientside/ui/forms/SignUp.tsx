@@ -18,9 +18,13 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GoogleCaptchaWrapper from "@/app/utils/auth/ReCaptcha/ReCaptchaWarpper";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { encrypt } from "@/app/utils/crypto/ClientCrypto";
+import { SignUpAuthToken } from "@/proto/generated/signup/SignUpAuthToken";
+import { useRouter } from 'next/navigation';
+import { useAuthContext } from "@/app/utils/contexts/auth/AuthContext";
 
 const specialCharacters = '!@#$%&*()_\\-+=.';
 
@@ -28,6 +32,8 @@ function SignUpForm() {
     const TOTAL_SIGNUP_SECTIONS = 2;
     const [section, setSection] = useState<number>(0);
     const [finalizedSignUp, setFinalizedSignUp] = useState<boolean>(false);
+    const router = useRouter();
+    const { setToken } = useAuthContext();
 
     const formSchema = useMemo(() => z.object({
         firstname: z.string().min(1, 'Please provide your first name.')
@@ -130,7 +136,6 @@ function SignUpForm() {
 
     // const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const onSubmit = async (values: any) => {
-        console.log("SUBMITTING FORM!!!!", values);
         const result = formSchema.safeParse(values);
 
         if (!result.success) {
@@ -159,7 +164,37 @@ function SignUpForm() {
         // Proceed with form submission
         if (executeRecaptcha !== undefined) {
             const token = await executeRecaptcha("registerSubmit");
-            console.log(token);
+            try {
+                const e = result?.data?.email;
+                const p = result?.data?.password;
+                const fn = result?.data?.firstname;
+                const ln = result?.data?.lastname;
+                if (e !== undefined && p !== undefined && fn !== undefined && ln !== undefined) {
+                    const email = await encrypt(e);
+                    const password = await encrypt(p);
+                    const firstName = await encrypt(fn);
+                    const lastName = await encrypt(ln);
+    
+                    const response = await fetch(`/api/signup`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email, password: password, firstName: firstName, lastName: lastName, reCaptchaToken: token })
+                    });
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    const authToken: SignUpAuthToken = await response.json();
+                    if (authToken?.token !== "" && authToken.token !== undefined) {
+                        setToken(authToken.token);
+                        router.push("/home");
+                    }
+
+                }
+            } catch (error: any) {
+                console.error("Fetch error: ", error.message);
+            }
         }
     };
 

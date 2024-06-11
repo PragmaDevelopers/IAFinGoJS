@@ -132,7 +132,7 @@ func DecryptData(data string) (string, error) {
 	return string(decryptedData), nil
 }
 
-func generateKey(keySize int) ([]byte, error) {
+func GenerateRandomKey(keySize int) ([]byte, error) {
 	key := make([]byte, keySize)
 	_, err := io.ReadFull(rand.Reader, key)
 	if err != nil {
@@ -142,7 +142,7 @@ func generateKey(keySize int) ([]byte, error) {
 }
 
 func GenerateJWKKey(keySize int) (*jose.JSONWebKey, error) {
-	k, e := generateKey(keySize)
+	k, e := GenerateRandomKey(keySize)
 	jwk := &jose.JSONWebKey{
 		Key:       k,
 		KeyID:     "aes-key",

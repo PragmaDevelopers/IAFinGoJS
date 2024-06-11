@@ -1,4 +1,4 @@
-module api/proto
+module utils/auth
 
 go 1.22.2
 

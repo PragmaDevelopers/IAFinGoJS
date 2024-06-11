@@ -1,4 +1,4 @@
-module api/proto
+module utils/database
 
 go 1.22.2
 

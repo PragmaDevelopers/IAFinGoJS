@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package login;
+
+option go_package = "api/proto";
+
+service Login {
+    rpc Authenticate (LogInCredentials) returns (LogInAuthToken);
+}
+
+message LogInCredentials {
+    string email = 1;
+    string password = 2;
+}
+
+message LogInAuthToken {
+    string token = 1;
+}

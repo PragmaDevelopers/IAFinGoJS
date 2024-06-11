@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AuthContextWrapper } from "@/app/utils/auth/AuthContextWrapper";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,7 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="w-screen h-screen scroll-smooth">{children}</body>
+      <body className="w-screen h-screen scroll-smooth">
+        <AuthContextWrapper>
+          {children}
+        </AuthContextWrapper>
+      </body>
     </html>
   );
 }
