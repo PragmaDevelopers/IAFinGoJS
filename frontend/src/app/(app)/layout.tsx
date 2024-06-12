@@ -15,7 +15,7 @@ export default function Layout(props: PageProps): ReactElement<PageProps, any> {
     const router = useRouter();
     const { token } = useAuthContext();
     useLayoutEffect(()=>{
-        if(["/home"].includes(usePath)){
+        if(["/home","/dashboard"].includes(usePath)){
             if(token == "" || token == null){
                 // router.push("/login");
             }
