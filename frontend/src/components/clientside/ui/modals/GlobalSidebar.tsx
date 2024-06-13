@@ -2,7 +2,6 @@
 
 import { ArrowBigRightDash, Banknote, File, Home, LayoutDashboard, LucideTrendingDown, LucideTrendingUp, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { cn } from "@/lib/utils"
 
 import {
     Sheet,
@@ -12,16 +11,13 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-const SHEET_SIDES = ["top", "right", "bottom", "left"] as const
 
-type SheetSide = (typeof SHEET_SIDES)[number]
-
-const Sidebar: React.FC = () => {
+const GlobalSidebar: React.FC = () => {
     return (
         <Sheet>
             <SheetTrigger>
                 <div
-                    className="h-12 w-12 p-3 bg-gray-800 opacity-50 text-white fixed top-4 -left-2 hover:opacity-100 hover:translate-x-2 transition-transform duration-300"
+                    className="z-50 h-12 w-12 p-3 bg-gray-800 opacity-50 text-white fixed top-4 -left-2 hover:opacity-100 hover:translate-x-2 transition-transform duration-300"
                 >
                     <ArrowBigRightDash />
                 </div>
@@ -64,4 +60,4 @@ const Sidebar: React.FC = () => {
     );
 };
 
-export default Sidebar;
+export default GlobalSidebar;

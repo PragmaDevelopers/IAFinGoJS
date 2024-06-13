@@ -3,7 +3,8 @@
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { ReactElement, useLayoutEffect, useState } from "react";
 import { useAuthContext } from "../utils/contexts/auth/AuthContext";
-import Sidebar from "@/components/clientside/ui/Sidebar";
+import GlobalSidebar from "@/components/clientside/ui/modals/GlobalSidebar";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface PageProps {
     children: ReactElement<any, any>
@@ -22,8 +23,8 @@ export default function Layout(props: PageProps): ReactElement<PageProps, any> {
         }
     },[usePath])
     return (
-        <div className="w-full h-full overflow-hidden">
-            <Sidebar />
+        <div className="h-full overflow-x-hidden">
+            <GlobalSidebar />
             { children }
         </div>
     );
