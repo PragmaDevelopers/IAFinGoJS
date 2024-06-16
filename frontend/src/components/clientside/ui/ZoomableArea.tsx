@@ -4,18 +4,21 @@ import { Button } from '@/components/ui/button';
 
 interface ZoomableAreaProps {
     isDragging: boolean,
+    setZoomScale: (newValue:number) => void,
     children: React.ReactNode
 }
 
-const ZoomableArea: React.FC<ZoomableAreaProps> = ({ isDragging,children }) => {
+const ZoomableArea: React.FC<ZoomableAreaProps> = ({ isDragging,children,setZoomScale }) => {
     return (
         <TransformWrapper 
             disabled={isDragging}
             alignmentAnimation={{ disabled: true }}
             limitToBounds={true}
+            centerOnInit={false}
             centerZoomedOut={false}
-            minScale={0.8}
-            maxScale={3}
+            minScale={0.5}
+            maxScale={2}
+            onZoom={(ref)=>setZoomScale(ref.state.scale)}
         >
             {({ zoomIn, zoomOut, resetTransform }) => (
                 <>

@@ -1,9 +1,9 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import { DashboardType } from '@/types/dashboard';
+import React from 'react';
 import { Bar, Bubble, Doughnut, Line, Pie, PolarArea, Radar, Scatter } from "react-chartjs-2";
 
-
 interface MultiDashboardProps {
-    type: "bar" | "bubble" | "doughnut" | "line" | "pie" | "polarArea" | "radar" | "scatter"
+    type: DashboardType
     data: any,
     options: any
 }
