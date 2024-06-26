@@ -27,37 +27,120 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-import { ReactElement, useState } from "react"
-import { DashboardEnum } from "@/types/dashboard"
-import Image from "next/image"
+import { ReactElement, useEffect, useState } from "react"
+import { DashboardEnum, DashboardType } from "@/types/dashboard"
 import { Input } from "@/components/ui/input"
 
 import ExcelJS from 'exceljs';
 import DashboardInfoTable from "../tables/DashboardInfoTable"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { CheckedState } from "@radix-ui/react-checkbox"
+import MultiDashboard from "../MultiDashboard"
+import { ChartDataset } from "chart.js"
+import formatData from "@/app/utils/dashboard/FormatData"
+import { title } from "process"
 
 interface PageProps {
     selectedIndex: number
+    selectedItem: any,
     setItems: (newValue: any) => void
     children: ReactElement<any, any>
 }
 
 export default function DashboardEditorModal(props: PageProps) {
-    const { children, setItems, selectedIndex } = props;
-    const [dashboardImage, setDashboardImage] = useState<string | null>(null);
-    const [uploadedData,setUploadedData] = useState<any[]>([]);
-    const [headerIndex,setHeaderIndex] = useState<number>(0);
+    const { children, selectedItem, setItems, selectedIndex } = props;
+    const [isManuelHeader, setIsManuelHeader] = useState<CheckedState>(false);
+    const [uploadedData, setUploadedData] = useState<any[]>([]);
+    const [headerIndex, setHeaderIndex] = useState<number>(0);
+    const [dashboardManager, setDashboardManager] = useState<{
+        x: any[],
+        y: any[],
+        xIndex: string,
+        yIndex: string[],
+        title: string,
+        type: DashboardType | ""
+    }>({
+        x: [],
+        y: [],
+        xIndex: "",
+        yIndex: [],
+        title: "",
+        type: ""
+    });
+    function openDashboardEditor(){
+        setDashboardManager({
+            title: selectedItem.title ? selectedItem.title : dashboardManager.title,
+            x: selectedItem.x ? selectedItem.x : dashboardManager.x,
+            y: selectedItem.y ? selectedItem.y : dashboardManager.y,
+            xIndex: selectedItem.xIndex ? selectedItem.xIndex : dashboardManager.xIndex,
+            yIndex: selectedItem.yIndex ? selectedItem.yIndex : dashboardManager.yIndex,
+            type: selectedItem.type ? selectedItem.type : dashboardManager.type,
+        });
+    }
     function clearDashboard() {
         setItems((prevItems: any) => {
             prevItems[selectedIndex].isPlaceholder = true;
             return [...prevItems];
         });
     }
-    function showDashboardImage(value: string) {
-        setDashboardImage("/" + value + ".png");
+    function clearValueY(yIndex: number) {
+        let newDashboardManager = dashboardManager;
+        newDashboardManager.yIndex.splice(yIndex, 1);
+        newDashboardManager.y.splice(Number(yIndex), 1);
+        setDashboardManager({ ...newDashboardManager });
     }
     function saveChange() {
-
+        setItems((prevItems: any) => {
+            prevItems[selectedIndex].isPlaceholder = false;
+            prevItems[selectedIndex].type = dashboardManager.type;
+            prevItems[selectedIndex].data = buildData();
+            prevItems[selectedIndex].options = buildOptions();
+            return [...prevItems];
+        });
+    }
+    function buildData() {
+        return {
+            labels: dashboardManager.x,
+            datasets: dashboardManager.yIndex.map(index => {
+                return {
+                    label: uploadedData[headerIndex][index],
+                    data: uploadedData.slice(headerIndex + 1).map((row: any) => row[index]),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1,
+                } as ChartDataset
+            })
+        }
+    }
+    function buildOptions() {
+        return {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top' as const,
+                },
+                title: {
+                    display: true,
+                    text: dashboardManager.title,
+                },
+            },
+        }
     }
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -75,8 +158,11 @@ export default function DashboardEditorModal(props: PageProps) {
                     jsonData.push(rowValues.slice(1)); // remove the first empty value
                 });
 
+                const newData: any = jsonData.map((row) => {
+                    return row.filter((cell: any) => cell != undefined);;
+                });
 
-                setUploadedData(jsonData);
+                setUploadedData(newData);
             };
             reader.readAsArrayBuffer(file);
         }
@@ -89,7 +175,7 @@ export default function DashboardEditorModal(props: PageProps) {
             <ContextMenuContent className="max-w-40 flex flex-col gap-1">
                 <Dialog>
                     <DialogTrigger asChild className="w-full">
-                        <Button variant="outline">Editar</Button>
+                        <Button onClick={()=>openDashboardEditor()} variant="outline">Editar</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-[90vw] h-[90vh]">
                         <ScrollArea className="px-5">
@@ -99,8 +185,15 @@ export default function DashboardEditorModal(props: PageProps) {
                                     Descrição do editor de dashboard
                                 </DialogDescription>
                             </DialogHeader>
-                            <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-                            <Select onValueChange={(index)=>setHeaderIndex(Number(index))}>
+                            <Input type="file" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} />
+                            <div className="my-3 flex gap-2 items-center">
+                                <Checkbox
+                                    checked={isManuelHeader}
+                                    onCheckedChange={(value) => setIsManuelHeader(value)}
+                                />
+                                <Label>Ativar escolha manual do header</Label>
+                            </div>
+                            <Select defaultValue={`${headerIndex}`} disabled={!isManuelHeader} onValueChange={(index) => setHeaderIndex(Number(index))}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Onde começa o header?" />
                                 </SelectTrigger>
@@ -108,8 +201,8 @@ export default function DashboardEditorModal(props: PageProps) {
                                     <SelectGroup>
                                         <SelectLabel>Headers</SelectLabel>
                                         {
-                                            uploadedData.map((row,index) => {
-                                                const newRow = row.filter((r:any)=>r!=undefined&&r!=null);
+                                            uploadedData.map((row, index) => {
+                                                const newRow = row.filter((r: any) => r != undefined && r != null);
                                                 return (
                                                     <SelectItem key={index} value={index.toString()}>{newRow.join(", ")}</SelectItem>
                                                 )
@@ -118,25 +211,92 @@ export default function DashboardEditorModal(props: PageProps) {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
-                            <DashboardInfoTable headers={uploadedData[headerIndex]} cells={uploadedData.slice(headerIndex+1)} />
-                            <Select onValueChange={showDashboardImage}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Selecione um dashboard" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectLabel>Dashboards</SelectLabel>
-                                        {
-                                            Object.values(DashboardEnum).map(type => {
-                                                return (
-                                                    <SelectItem key={type} value={type}>{type.substring(0, 1).toUpperCase() + type.substring(1)}</SelectItem>
-                                                )
-                                            })
-                                        }
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            {dashboardImage ? <Image className="w-full max-w-96 mx-auto mt-10" width={300} height={300} alt="Dashboard Image" src={dashboardImage} /> : <p>Sem imagem</p>}
+                            <DashboardInfoTable headers={uploadedData[headerIndex]} cells={uploadedData.slice(headerIndex + 1)} />
+                            <Input className="mb-3" type="text" placeholder="Título" onChange={(input) => setDashboardManager({ ...dashboardManager, title: input.target.value })} />
+                            <div className="flex gap-5">
+                                <Select onValueChange={(index) => {
+                                    setDashboardManager({
+                                        ...dashboardManager, xIndex: index, x: uploadedData.slice(headerIndex + 1).map(row => {
+                                            return formatData(row[index]);
+                                        })
+                                    })
+                                }}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Selecione o valor x" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Valor x</SelectLabel>
+                                            {
+                                                uploadedData[headerIndex]?.map((header: any, index: number) => {
+                                                    return (
+                                                        <SelectItem disabled={dashboardManager.yIndex.includes(`${index}`)} key={index} value={`${index}`}>{header}</SelectItem>
+                                                    )
+                                                })
+                                            }
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <Select onValueChange={(index) => {
+                                    setDashboardManager({
+                                        ...dashboardManager,
+                                        yIndex: [...dashboardManager.yIndex, index],
+                                        y: [...dashboardManager.y, uploadedData.slice(headerIndex + 1).map(row => {
+                                            return formatData(row[index]);
+                                        })]
+                                    })
+                                }}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Selecione o valor y" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Valor y</SelectLabel>
+                                            {
+                                                uploadedData[headerIndex]?.map((header: any, index: number) => {
+                                                    return (
+                                                        <SelectItem disabled={`${index}` == dashboardManager.xIndex} key={index} value={`${index}`}>{header}</SelectItem>
+                                                    )
+                                                })
+                                            }
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <Select onValueChange={(type: DashboardType) => { setDashboardManager({ ...dashboardManager, type }) }}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Selecione um dashboard" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Dashboards</SelectLabel>
+                                            {
+                                                Object.values(DashboardEnum).map(type => {
+                                                    return (
+                                                        <SelectItem key={type} value={type}>{type.substring(0, 1).toUpperCase() + type.substring(1)}</SelectItem>
+                                                    )
+                                                })
+                                            }
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            {
+                                dashboardManager.yIndex.length > 0 && (
+                                    <div className="flex gap-5 mt-3 items-center">
+                                        <Label>Valores Y:</Label>
+                                        {dashboardManager.yIndex.map((colIndex, index) => {
+                                            return <Button variant="destructive" className="cursor-pointer" key={index} onClick={() => clearValueY(index)}>{uploadedData[headerIndex][Number(colIndex)]}</Button>
+                                        })}
+                                    </div>
+                                )
+                            }
+                            <div className="w-full max-w-[800px] mx-auto mt-5">
+                                <MultiDashboard
+                                    type={dashboardManager.type}
+                                    data={buildData()}
+                                    options={buildOptions()}
+                                />
+                            </div>
                             <DialogFooter>
                                 <Button onClick={saveChange}>Salvar mudanças</Button>
                             </DialogFooter>
