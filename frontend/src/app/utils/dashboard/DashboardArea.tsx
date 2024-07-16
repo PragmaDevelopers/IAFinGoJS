@@ -21,6 +21,7 @@ import {
 import MultiDashboard from "@/components/clientside/ui/MultiDashboard";
 import DashboardEditorModal from "@/components/clientside/ui/modals/DashboardEditor";
 import { DashboardType } from "@/types/dashboard";
+import { useExpenseManagerContext } from "../contexts/ExpenseManagerContext";
 
 ChartJS.register(ArcElement, CategoryScale, RadialLinearScale, LineElement, LinearScale, BarElement, PointElement, Title, Tooltip, Legend);
 
@@ -29,60 +30,19 @@ const Draggable = ({ item, zoomScale }: { item: any, zoomScale: number }) => {
         id: "draggable-" + item.id
     });
 
-    switch (zoomScale) {
-        case 0.9:
-            zoomScale = 1.110;
-            break;
-        case 0.8:
-            zoomScale = 1.250;
-            break;
-        case 0.7:
-            zoomScale = 1.420;
-            break;
-        case 0.6:
-            zoomScale = 1.660;
-            break;
-        case 0.5:
-            zoomScale = 2;
-            break;
-        case 1.1:
-            zoomScale = 0.9;
-            break;
-        case 1.2:
-            zoomScale = 0.9;
-            break;
-        case 1.3:
-            zoomScale = 0.8;
-            break;
-        case 1.4:
-            zoomScale = 0.8;
-            break;
-        case 1.5:
-            zoomScale = 0.7;
-            break;
-        case 1.6:
-            zoomScale = 0.7;
-            break;
-        case 1.7:
-            zoomScale = 0.6;
-            break;
-        case 1.8:
-            zoomScale = 0.6;
-            break;
-        case 1.9:
-            zoomScale = 0.5;
-            break;
-        case 2:
-            zoomScale = 0.5;
-            break;
-        default:
-            zoomScale = 1;
-            break;
-    }
+    const calculateZoomScale = (zoom: number): number => {
+        if (zoom <= 1) {
+            return 1 / zoom;
+        } else {
+            return 1 / (2 - zoom);
+        }
+    };
+
+    const adjustedZoomScale = calculateZoomScale(zoomScale);
 
     const style:CSSProperties|undefined  = {
-        transform: `translate3d(${transform?.x ? transform.x * zoomScale : 0}px, ${transform?.y ? transform.y * zoomScale : 0}px, 0)`,
-        padding: '16px',
+        transform: `translate3d(${transform?.x ? transform.x * adjustedZoomScale : 0}px, ${transform?.y ? transform.y * adjustedZoomScale : 0}px, 0)`,
+        padding: '5%',
         background: 'lightblue',
         border: '1px solid darkblue',
         marginBottom: '8px',
@@ -93,7 +53,7 @@ const Draggable = ({ item, zoomScale }: { item: any, zoomScale: number }) => {
         alignItems: "center"
     };
 
-    const renderDashboard = () => {
+    const renderDashboard: () => JSX.Element = () => {
         if(item.isPlaceholder){
             return <div style={style}></div>;
         }else{
@@ -125,8 +85,8 @@ const Droppable = ({ id, children }: { id: string | number, children: any }) => 
         padding: '16px',
         background: isOver ? 'lightgreen' : 'lightgrey',
         border: '1px solid darkgrey',
-        width: '400px',
-        height: '400px'
+        width: '1000px',
+        height: '1000px'
     };
 
     return (
@@ -140,44 +100,10 @@ export default function DashboardArea(): ReactElement<any, any> {
     const [isDragging, setIsDragging] = useState(false);
     const [rowAndCol, setRowAndCol] = useState<2 | 3 | 4>(3);
     const [zoomScale, setZoomScale] = useState(1);
-    const [items, setItems] = useState<{
-        id: number,
-        isPlaceholder: boolean,
-        type?: DashboardType | "",
-        data?: any,
-        options?: any
-    }[]>([{
-        id: 1,
-        isPlaceholder: true
-    }, {
-        id: 2,
-        isPlaceholder: true
-    }, {
-        id: 3,
-        isPlaceholder: true
-    }, {
-        id: 4,
-        isPlaceholder: true
-    }, {
-        id: 5,
-        isPlaceholder: true
-    }, {
-        id: 6,
-        isPlaceholder: true
-    }, {
-        id: 7,
-        isPlaceholder: true
-    }, {
-        id: 8,
-        isPlaceholder: true
-    }, {
-        id: 9,
-        isPlaceholder: true
-    }]);
+    const { items, setItems } = useExpenseManagerContext();
     const itemsId = useMemo(() => {
         return items.map(item => item.id);
     }, [items]);
-
     return (
         <ZoomableArea setZoomScale={setZoomScale} isDragging={isDragging}>
             <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -239,9 +165,9 @@ export default function DashboardArea(): ReactElement<any, any> {
         if (!over) return;
 
         const oldIndex = findIndex(active.id.replace("draggable-", ""), items);
-        const newIndex = over.id;
+        const newIndex = over.id // over é o index, ou seja, começa do 0;
 
-        if (oldIndex != null && oldIndex !== newIndex) {
+        if (oldIndex != null && oldIndex != newIndex) {
             setItems((prevItems) => {
                 return arrayMove(prevItems, oldIndex, newIndex);
             });
@@ -259,8 +185,8 @@ export default function DashboardArea(): ReactElement<any, any> {
 
     function arrayMove(arr: any[], from: any, to: any) {
         const newArr = [...arr];
-        const [movedItem] = newArr.splice(from, 1);
-        newArr.splice(to, 0, movedItem);
+        newArr.splice(from, 1,items[to]);
+        newArr.splice(to, 1,items[from]);
         return newArr;
     }
 }

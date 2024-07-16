@@ -13,11 +13,14 @@ const ZoomableArea: React.FC<ZoomableAreaProps> = ({ isDragging,children,setZoom
         <TransformWrapper 
             disabled={isDragging}
             alignmentAnimation={{ disabled: true }}
-            limitToBounds={true}
-            centerOnInit={false}
+            limitToBounds={false}
+            centerOnInit={true}
             centerZoomedOut={false}
-            minScale={0.5}
-            maxScale={2}
+            initialScale={0.18}
+            initialPositionX={315}
+            initialPositionY={30}
+            minScale={0.18}
+            maxScale={1}
             onZoom={(ref)=>setZoomScale(ref.state.scale)}
         >
             {({ zoomIn, zoomOut, resetTransform }) => (

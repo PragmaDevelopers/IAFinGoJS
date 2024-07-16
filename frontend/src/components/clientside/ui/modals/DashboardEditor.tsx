@@ -40,7 +40,8 @@ import { CheckedState } from "@radix-ui/react-checkbox"
 import MultiDashboard from "../MultiDashboard"
 import { ChartDataset } from "chart.js"
 import formatData from "@/app/utils/dashboard/FormatData"
-import { title } from "process"
+import { toast } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 
 interface PageProps {
     selectedIndex: number
@@ -212,9 +213,9 @@ export default function DashboardEditorModal(props: PageProps) {
                                 </SelectContent>
                             </Select>
                             <DashboardInfoTable headers={uploadedData[headerIndex]} cells={uploadedData.slice(headerIndex + 1)} />
-                            <Input className="mb-3" type="text" placeholder="Título" onChange={(input) => setDashboardManager({ ...dashboardManager, title: input.target.value })} />
+                            <Input className="mb-3" type="text" placeholder="Título" defaultValue={dashboardManager.title} onChange={(input) => setDashboardManager({ ...dashboardManager, title: input.target.value })} />
                             <div className="flex gap-5">
-                                <Select onValueChange={(index) => {
+                                <Select defaultValue={dashboardManager.xIndex}  onValueChange={(index) => {
                                     setDashboardManager({
                                         ...dashboardManager, xIndex: index, x: uploadedData.slice(headerIndex + 1).map(row => {
                                             return formatData(row[index]);
@@ -290,7 +291,7 @@ export default function DashboardEditorModal(props: PageProps) {
                                     </div>
                                 )
                             }
-                            <div className="w-full max-w-[800px] mx-auto mt-5">
+                            <div className="flex justify-center mt-5">
                                 <MultiDashboard
                                     type={dashboardManager.type}
                                     data={buildData()}
@@ -298,29 +299,46 @@ export default function DashboardEditorModal(props: PageProps) {
                                 />
                             </div>
                             <DialogFooter>
-                                <Button onClick={saveChange}>Salvar mudanças</Button>
+                                <Button
+                                    variant="outline"
+                                    className="mt-3"
+                                    onClick={() => {
+                                        saveChange()
+                                        toast("Mudanças foram salvas", {
+                                        description: "Feche o editor para ver as mudanças",
+                                        action: {
+                                            label: "Visualizar",
+                                            onClick: () => console.log("Visualizado"),
+                                        },
+                                        })
+                                    }}
+                                    >
+                                    Salvar mudanças
+                                </Button>
                             </DialogFooter>
                             <ScrollBar orientation="vertical" />
                         </ScrollArea>
+                        <Toaster position="bottom-left" />
                     </DialogContent>
                 </Dialog>
                 <Dialog>
                     <DialogTrigger asChild className="w-full">
                         <Button variant="outline">Tela cheia</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="max-w-[90vw] h-[90vh]">
                         <DialogHeader>
                             <DialogTitle>Tela cheia do dashboard</DialogTitle>
                             <DialogDescription>
                                 Descrição do gerencimanto de despesas
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <p>*Gerenciamento em produção*</p>
+                        <div className="flex justify-center mt-5">
+                            <MultiDashboard
+                                type={dashboardManager.type}
+                                data={buildData()}
+                                options={buildOptions()}
+                            />
                         </div>
-                        <DialogFooter>
-                            <Button type="submit">Salvar mudanças</Button>
-                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
                 <ContextMenuItem

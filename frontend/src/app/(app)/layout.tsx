@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ReactElement, useLayoutEffect } from "react";
 import { useAuthContext } from "../utils/contexts/auth/AuthContext";
 import GlobalSidebar from "@/components/clientside/ui/modals/GlobalSidebar";
+import { ExpenseManagerContextProvider } from "../utils/contexts/ExpenseManagerContext";
 
 interface PageProps {
     children: ReactElement<any, any>
@@ -23,8 +24,10 @@ export default function Layout(props: PageProps): ReactElement<PageProps, any> {
     },[usePath])
     return (
         <div className="h-full overflow-x-hidden">
-            <GlobalSidebar />
-            { children }
+            <ExpenseManagerContextProvider>
+                <GlobalSidebar />
+                { children }
+            </ExpenseManagerContextProvider>
         </div>
     );
 }

@@ -32,6 +32,7 @@
     "exceljs": "^4.4.0",
     "lucide-react": "^0.390.0",
     "next": "14.2.3",
+    "next-themes": "^0.3.0",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
@@ -39,6 +40,7 @@
     "react-hook-form": "^7.51.5",
     "react-zoom-pan-pinch": "^3.4.4",
     "rimraf": "^5.0.7",
+    "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
